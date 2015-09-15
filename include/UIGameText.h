@@ -19,7 +19,7 @@ private:
 	int m_iTimeAutoRelease; // how long till the full circle becomes empty
 	int m_iPercentDrained; // how much should be taken away from percentfilled for autorelease to work
 	std::string m_sFunctionName; // name of function to execute when released properly
-	sf::Sound m_fxLetterFill; // sound to play while letter is filling
+	//sf::Sound m_fxLetterFill; // sound to play while letter is filling
 
 	sf::Texture m_sfFillCircleTexture;
 	sf::Color m_sfFillCircleColor;

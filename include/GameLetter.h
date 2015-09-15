@@ -27,10 +27,6 @@ protected:
 	int m_iPercentFilled; // for the fill circles
 	int m_iPercentDrained; // also for fill circles
 	float m_fCollisionRadius;
-	sf::Sound m_fxReleaseTrue;
-	sf::Sound m_fxLetterFill;
-	sf::Sound m_fxFlareFiring;
-	sf::Sound m_fxShipExplosion;
 
 public:
 	GameLetter(std::string sLetter, sf::Vector2f vPosition);

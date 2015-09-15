@@ -45,6 +45,10 @@ void MainMenuScreen::functionHandler(std::string sFunctionName)
 	{
 		this->gotoQuit();
 	}
+	else if (sFunctionName == "ESCAPE")
+	{
+		//m_sfWindow->close();
+	}
 }
 
 void MainMenuScreen::gotoPlay()
@@ -69,6 +73,7 @@ void MainMenuScreen::update(const sf::RenderWindow& window)
 	if (!m_isCurrentScreen) // do things only one time when this screen appears
 	{
 		SoundManager::getInstance().playBGMusic("Rhino_Menu");
+		BackgroundController::getInstance().startSpawning();
 		m_isCurrentScreen = true;
 	}
 	Screen::update(window);

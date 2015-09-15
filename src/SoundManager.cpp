@@ -15,8 +15,6 @@ void SoundManager::loadEffect(const std::string& name, const std::string& fileNa
 {
 	sf::SoundBuffer buffer;
 	buffer.loadFromFile(fileName);
-	//sf::Sound sound;
-	//sound.setBuffer(buffer);
 	this->m_AllEffects[name] = buffer;
 }
 
@@ -24,6 +22,7 @@ void SoundManager::loadMusic(const std::string& name, const std::string& fileNam
 {
 	sf::Music* music = new sf::Music;
 	music->openFromFile(fileName);
+	music->setVolume(50); // tmp
 	m_AllMusic[name] = music;
 }
 
@@ -54,7 +53,10 @@ void SoundManager::playBGMusic(const std::string& musicRef)
 	}
 	else // if the track that wants to be played is already being played then do nothing
 	{
-
+		if (m_CurrentMusic->getStatus() != sf::Sound::Status::Playing)
+		{
+			m_CurrentMusic->play();
+		}
 	}
 }
 
@@ -64,4 +66,29 @@ void SoundManager::stopBGMusic()
 	{
 		m_CurrentMusic->stop();
 	}
+}
+
+void SoundManager::playSound(const std::string& ref)
+{
+	if (m_AllSounds.size() >= 100) // if sound list reaches over 50 iterate through and delete non playing sounds
+	{
+		for (std::vector<sf::Sound>::iterator it = m_AllSounds.begin(); it != m_AllSounds.end();)
+		{
+			sf::Sound::Status stat = it->getStatus();
+			if (it->getStatus() != sf::Sound::Status::Playing)
+			{
+				it = m_AllSounds.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+	sf::Sound* sound = new sf::Sound;
+	sound->setBuffer(m_AllEffects.at(ref));
+	this->m_AllSounds.push_back(*sound);
+	this->m_AllSounds.back().setVolume(50); // tmp
+	this->m_AllSounds.back().play();
+	delete sound;
 }

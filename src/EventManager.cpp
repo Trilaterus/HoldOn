@@ -19,8 +19,8 @@ void EventManager::handleEvents(sf::Event eEvent, sf::RenderWindow* window, Scre
 {
 	m_Event = eEvent;
 
-	if (m_Event.type == sf::Event::Closed ||
-		sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+	if (m_Event.type == sf::Event::Closed) //||
+		//sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) remove comment to enable close by esc
 	{
 		window->close();
 	}
@@ -42,7 +42,7 @@ void EventManager::handleEvents(sf::Event eEvent, sf::RenderWindow* window, Scre
 	5 (t) = Changes window width and height to 1024x768
 	6 (t) = Toggles between fullscreen and not fullscreen
 	*/
-
+	/*
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
 	{
 		if (screenManager.isFullscreen())
@@ -142,6 +142,6 @@ void EventManager::handleEvents(sf::Event eEvent, sf::RenderWindow* window, Scre
 			screenManager.update(*window);
 		}
 	}
-
+	*/
 	screenManager.getCurrentScreen()->handleEvents(eEvent);
 }

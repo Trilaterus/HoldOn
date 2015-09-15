@@ -194,6 +194,13 @@ int Screen::convertToEnum(std::string name)
 
 bool Screen::screenAnimation(int iTransitionNum)
 {
+	int windowWidth = m_sfWindow->getSize().x;
+	int windowHeight = m_sfWindow->getSize().y;
+	int doubleWindowWidth = windowWidth * 2;
+	int doubleWindowHeight = windowHeight * 2;
+	int halfWindowWidth = windowWidth / 2;
+	int halfWindowHeight = windowHeight / 2;
+
 	if (iTransitionNum == 0)
 	{
 		m_needsChange = true;
@@ -207,7 +214,7 @@ bool Screen::screenAnimation(int iTransitionNum)
 			m_animViewZoom = 1;
 			m_isAnimating = false;
 			// this bit is causing the
-			sf::View* view = new sf::View(sf::Vector2f(640, 400), sf::Vector2f(1280, 800));
+			sf::View* view = new sf::View(sf::Vector2f(halfWindowWidth, halfWindowHeight), sf::Vector2f(windowWidth, windowHeight));
 			m_sfWindow->setView(*view);
 			// screen glitch on transition, gotta get it to set it after it has been changed
 			m_isClockTransitionReset = false;
@@ -233,8 +240,8 @@ bool Screen::screenAnimation(int iTransitionNum)
 				m_animViewZoom = 0.01;
 			}
 			view->setViewport(sf::FloatRect(0, 0, 1, m_animViewZoom));
-			float newPortHeight = view->getViewport().height * 800;
-			view->setViewport(sf::FloatRect(0, (800 - newPortHeight) / 1600, 1, m_animViewZoom)); // 800 is screen height, 1600 is double that
+			float newPortHeight = view->getViewport().height * windowHeight;
+			view->setViewport(sf::FloatRect(0, (windowHeight - newPortHeight) / doubleWindowHeight, 1, m_animViewZoom)); // 800 is screen height, 1600 is double that
 			if (m_sfWindow->getView().getViewport().height <= 0.2)
 			{
 				m_isAnimating = false;
@@ -257,8 +264,8 @@ bool Screen::screenAnimation(int iTransitionNum)
 			{
 				m_animViewZoom = 0;
 			}
-			float newPortWidth = view->getViewport().width * 1280;
-			view->setViewport(sf::FloatRect((1280 - newPortWidth) / 2560, 0.5, m_animViewZoom, 0.01));
+			float newPortWidth = view->getViewport().width * windowWidth;
+			view->setViewport(sf::FloatRect((windowWidth - newPortWidth) / doubleWindowWidth, 0.5, m_animViewZoom, 0.01));
 			m_sfWindow->setView(*view);
 		}
 	}
@@ -294,14 +301,21 @@ std::string Screen::handleEvents(sf::Event sfEvent)
 {
 	if (sfEvent.type == sf::Event::KeyPressed) // If a key is pressed
 	{
-		for (std::vector<UIObject*>::iterator it = m_AllUIObjects.begin(); it != m_AllUIObjects.end(); ++it)
+		if (sfEvent.key.code == sf::Keyboard::Escape)
 		{
-			std::string sObjName = typeid(**it).name();
-
-			if (sObjName == "class UIGameText")
+			return "ESCAPE";
+		}
+		else
+		{
+			for (std::vector<UIObject*>::iterator it = m_AllUIObjects.begin(); it != m_AllUIObjects.end(); ++it)
 			{
-				UIGameText* uiGameText = dynamic_cast<UIGameText*>(*it);
-				uiGameText->onPressed(sfEvent);
+				std::string sObjName = typeid(**it).name();
+
+				if (sObjName == "class UIGameText")
+				{
+					UIGameText* uiGameText = dynamic_cast<UIGameText*>(*it);
+					uiGameText->onPressed(sfEvent);
+				}
 			}
 		}
 	}
@@ -365,6 +379,7 @@ std::string Screen::handleEvents(sf::Event sfEvent)
 			}
 		}
 	}
+
 	return "";
 }
 

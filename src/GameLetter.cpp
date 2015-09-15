@@ -11,13 +11,13 @@ GameLetter::GameLetter(std::string sLetter, sf::Vector2f vPosition)
 	m_iScoreValue = 1;
 	m_fHealthValue = 1;
 	m_iTimeIdle = 5000; // = 5 seconds in milliseconds
-	m_iTimePressed = 2000;
-	m_iTimeOverPressed = 5000;
+	m_iTimePressed = 4000;
+	m_iTimeOverPressed = 10000;
 	m_isPressed = false;
-	m_fxReleaseTrue.setBuffer(SoundManager::getInstance().getEffectRef("ReleaseTrue"));
-	m_fxLetterFill.setBuffer(SoundManager::getInstance().getEffectRef("LetterFill_3s"));
-	m_fxFlareFiring.setBuffer(SoundManager::getInstance().getEffectRef("FlareFiring"));
-	m_fxShipExplosion.setBuffer(SoundManager::getInstance().getEffectRef("ShipExplosion"));
+	//m_fxReleaseTrue.setBuffer(SoundManager::getInstance().getEffectRef("ReleaseTrue"));
+	//m_fxLetterFill.setBuffer(SoundManager::getInstance().getEffectRef("LetterFill_3s"));
+	//m_fxFlareFiring.setBuffer(SoundManager::getInstance().getEffectRef("FlareFiring"));
+	//m_fxShipExplosion.setBuffer(SoundManager::getInstance().getEffectRef("ShipExplosion"));
 }
 
 /* GETTERS */

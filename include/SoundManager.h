@@ -13,6 +13,7 @@ private:
 	void operator=(SoundManager const&);
 
 	std::map<std::string, sf::SoundBuffer> m_AllEffects;
+	std::vector<sf::Sound> m_AllSounds;
 	std::map<std::string, sf::Music*> m_AllMusic;
 	sf::Music* m_CurrentMusic;
 
@@ -27,6 +28,7 @@ public:
 	sf::SoundBuffer& getEffectRef(const std::string& effect);
 	sf::Music* getMusicRef(const std::string& music);
 
+	void playSound(const std::string& ref);
 	void playBGMusic(const std::string& musicRef);
 	void stopBGMusic();
 };

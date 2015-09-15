@@ -14,7 +14,7 @@ public:
 
 	int generateInt(int iMin, int iMax);
 	float generateFloat(float fMin, float fMax);
-
+	bool generateBool();
 
 };
 

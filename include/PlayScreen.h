@@ -6,6 +6,8 @@
 class PlayScreen : public Screen
 {
 private:
+	bool m_bFirstTime;
+	bool m_isCurrentScreen;
 
 protected:
 
@@ -21,6 +23,7 @@ public:
 	void gotoNormal();
 	void gotoRapid();
 	void gotoBack();
+	void gotoTut();
 
 	virtual void update(const sf::RenderWindow& window);
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

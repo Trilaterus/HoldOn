@@ -41,14 +41,14 @@ void UIGameText::init()
 	m_sfOutline2CircleTexture = TextureManager::getInstance().getTexRef("FillCircleOutline2");
 	m_iPercentFilled = 0;
 	m_isPressed = false;
-	m_iTimeHeld = 1000; // 1 Seconds
-	m_iTimeAutoRelease = 2000; // 2 second
+	m_iTimeHeld = 750; // 0.75 Seconds
+	m_iTimeAutoRelease = 1500; // 1.5 second
 	m_sfKey = sf::Keyboard::A;
 	m_isReady = false;
 	m_isAutoReleaseClockStarted = false;
 	m_iPercentDrained = 0;
 	m_sFunctionName = "";
-	m_fxLetterFill.setBuffer(SoundManager::getInstance().getEffectRef("LetterFill_1s"));
+	//m_fxLetterFill.setBuffer(SoundManager::getInstance().getEffectRef("LetterFill_1s"));
 }
 
 /* GETTERS */
@@ -80,7 +80,8 @@ void UIGameText::onPressed(sf::Event sfEvent)
 		{
 			m_sfClock.restart();
 			m_isPressed = true;
-			m_fxLetterFill.play();
+			//m_fxLetterFill.play();
+			SoundManager::getInstance().playSound("LetterFill_1s");
 		}
 	}
 }
@@ -96,7 +97,7 @@ bool UIGameText::onReleased(sf::Event sfEvent)
 			m_isReady = false;
 			m_iPercentDrained = 0;
 			m_isAutoReleaseClockStarted = false;
-			m_fxLetterFill.stop();
+			//m_fxLetterFill.stop();
 			return true;
 		}
 		else
@@ -106,7 +107,7 @@ bool UIGameText::onReleased(sf::Event sfEvent)
 			m_isReady = false;
 			m_iPercentDrained = 0;
 			m_isAutoReleaseClockStarted = false;
-			m_fxLetterFill.stop();
+			//m_fxLetterFill.stop();
 			return false;
 		}
 	}
@@ -175,6 +176,7 @@ void UIGameText::update(const sf::RenderWindow& window)
 		{
 			if (!m_isAutoReleaseClockStarted)
 			{
+				SoundManager::getInstance().playSound("ReleaseTrue");
 				m_sfAutoReleaseClock.restart();
 				m_isAutoReleaseClockStarted = true;
 			}

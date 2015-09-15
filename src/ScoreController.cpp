@@ -62,16 +62,16 @@ void ScoreController::draw(sf::RenderTarget& target, sf::RenderStates states) co
 	sf::Text score;
 	score.setFont(m_sfFont);
 	score.setString("Score " + std::to_string(m_iScore));
-	score.setPosition(285, 38);
-	score.setColor(sf::Color(255, 255, 255, 100));
+	score.setPosition(285 - 115, 38 - 11);
+	score.setColor(sf::Color(255, 255, 255, 255));
 	score.setOrigin((score.getLocalBounds().width / 2.f) / score.getScale().x, (score.getLocalBounds().height / 2.f) / score.getScale().y);
 	target.draw(score);
 
 	sf::Text health;
 	health.setFont(m_sfFont);
 	health.setString("Health " + std::to_string(m_iHealth));
-	health.setPosition(950, 765);
-	health.setColor(sf::Color(255, 255, 255, 100));
+	health.setPosition(950 - 120, 765 - 20);
+	health.setColor(sf::Color(255, 255, 255, 255));
 	health.setOrigin((health.getLocalBounds().width / 2.f) / health.getScale().x, (health.getLocalBounds().height / 2.f) / health.getScale().y);
 	target.draw(health);
 }

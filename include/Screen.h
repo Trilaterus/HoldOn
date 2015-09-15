@@ -15,6 +15,7 @@ The purpose of the Screen class is to provide a layout in which other ui objects
 #include <iostream>
 #include "UIGameText.h"
 #include "ScoreController.h"
+#include "BackgroundController.h"
 
 class Screen : public sf::Drawable
 {

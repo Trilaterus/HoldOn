@@ -12,11 +12,63 @@ GameClassicLetter::GameClassicLetter(std::string sLetter, sf::Vector2f vPosition
 	m_colorLetter = sf::Color::White;
 	m_iCharSize = 60;
 
+	// Alert info
+	m_texAlert = TextureManager::getInstance().getTexRef("LetterAlert");
+	m_bNeedAlert = false;
+	m_fAlertRotation = m_RandomResource.generateFloat(0.f, 360.f);
+	m_clockAlert.restart();
+	m_isAlertSet = false;
+	m_fAlertRotationSpeed = 0.02;
+
 	// Fill circles info
 	m_texFill = TextureManager::getInstance().getTexRef("FillCircle");
 	m_texFillOutline = TextureManager::getInstance().getTexRef("FillCircleOutline1");
 	m_texOuterline = TextureManager::getInstance().getTexRef("FillCircleOutline2");
-	m_fCollisionRadius = m_texOuterline.getSize().x / 2;
+	m_fCollisionRadius = (m_texAlert.getSize().x - 51) / 2; // 51 is the size of the red line, it allows for red lines to overlap each other but not letters
+	m_colorFill = sf::Color(255, 0, 0, 255);
+	m_iPercentFilled = 0;
+	m_iPercentDrained = 0;
+
+	// Outline info
+	m_iPercentIdle = 0;
+
+	// Extra
+	m_isOverPressedClockStarted = false;
+	m_isReady = false;
+
+	// Animation variables
+	m_fAnimationScale = 0.f;
+	m_isAnimating = true;
+	m_isClockAnimation = false;
+	m_fSpawnAnimationDuration = 500;
+}
+
+GameClassicLetter::GameClassicLetter(std::string sLetter, sf::Vector2f vPosition, int iIdleTime, int iHoldTime, int iOverTime)
+: GameLetter(sLetter, vPosition)
+{
+	// Letter info
+	m_sfFont = TextureManager::getInstance().getFontRef("M12");
+	m_sLetter = sLetter;
+	m_vPosition = vPosition;
+	m_colorLetter = sf::Color::White;
+	m_iCharSize = 60;
+	m_iTimeIdle = iIdleTime;
+	m_iTimePressed = iHoldTime;
+	m_iTimeOverPressed = iOverTime;
+
+	// Alert info
+	m_texAlert = TextureManager::getInstance().getTexRef("LetterAlert");
+	m_bNeedAlert = false;
+	m_fAlertRotation = m_RandomResource.generateFloat(0.f, 360.f);
+	m_clockAlert.restart();
+	m_isAlertSet = false;
+	m_fAlertRotationSpeed = 0.02;
+
+	// Fill circles info
+	m_texFill = TextureManager::getInstance().getTexRef("FillCircle");
+	m_texFillOutline = TextureManager::getInstance().getTexRef("FillCircleOutline1");
+	m_texOuterline = TextureManager::getInstance().getTexRef("FillCircleOutline2");
+	m_fCollisionRadius = (m_texAlert.getSize().x - 51) / 2;  // 51 is the size of the red line, it allows for red lines to overlap each other but not letters
 	m_colorFill = sf::Color(255, 0, 0, 255);
 	m_iPercentFilled = 0;
 	m_iPercentDrained = 0;
@@ -60,12 +112,12 @@ void GameClassicLetter::spawnAnimation()
 
 int GameClassicLetter::getWidth()
 {
-	return m_texOuterline.getSize().x;
+	return m_texAlert.getSize().x;
 }
 
 int GameClassicLetter::getHeight()
 {
-	return m_texOuterline.getSize().y;
+	return m_texAlert.getSize().y;
 }
 
 void GameClassicLetter::setPosition(sf::Vector2f vPosition)
@@ -93,9 +145,19 @@ void GameClassicLetter::idleUpdate()
 		float i = m_clockIdle.getElapsedTime().asMilliseconds();
 		float j = i / m_iTimeIdle;
 		m_iPercentIdle = 100 - (j * 100);
-		if (m_iPercentIdle <= 50)
+		if (m_iPercentIdle <= 25)
 		{
-			int i = 0;
+			if (!m_isAlertSet)
+			{
+				m_clockAlert.restart();
+				m_isAlertSet = true;
+				m_bNeedAlert = true;
+			}
+			if (m_clockAlert.getElapsedTime().asSeconds() >= 1 / 60) // 1 / fps?
+			{
+				m_fAlertRotation += m_fAlertRotationSpeed;
+				m_clockAlert.restart();
+			}
 		}
 	}
 }
@@ -160,22 +222,35 @@ void GameClassicLetter::onPressed()
 	{
 		m_clockPressed.restart();
 		m_isPressed = true;
-		m_fxLetterFill.play();
+		m_isAlertSet = false;
+		m_bNeedAlert = false;
+		//m_fxLetterFill.play();
+		SoundManager::getInstance().playSound("LetterFill_3s");
 	}
 }
 
 bool GameClassicLetter::onReleased()
 {
-	if (m_iTimePressed <= m_clockPressed.getElapsedTime().asMilliseconds()) // If released at the right time
+	if (m_iTimePressed <= m_clockPressed.getElapsedTime().asMilliseconds() + 100) // If released at the right time
 	{
-		m_fxLetterFill.stop();
-		m_fxFlareFiring.play();
+		//m_fxLetterFill.stop();
+		//m_fxFlareFiring.play();
+		float i = m_iPercentIdle / 10;
+		float j = (100 - m_iPercentDrained) / 10;
+		float k = i + j;
+		m_iScoreValue = (k / 2) + 1;
+		if (m_iScoreValue > 10)
+		{
+			m_iScoreValue = 10;
+		}
+		SoundManager::getInstance().playSound("FlareFiring");
 		return true;
 	}
 	else if (m_iTimePressed > m_clockPressed.getElapsedTime().asMilliseconds()) // If released at the wrong time
 	{
-		m_fxLetterFill.stop();
-		m_fxShipExplosion.play();
+		//m_fxLetterFill.stop();
+		//m_fxShipExplosion.play();
+		SoundManager::getInstance().playSound("ShipExplosion");
 		return false;
 	}
 }
@@ -191,7 +266,8 @@ bool GameClassicLetter::checkIdle()
 	{
 		if (m_clockIdle.getElapsedTime().asMilliseconds() >= m_iTimeIdle)
 		{
-			m_fxShipExplosion.play();
+			//m_fxShipExplosion.play();
+			SoundManager::getInstance().playSound("ShipExplosion");
 			return true;
 		}
 		else
@@ -213,12 +289,39 @@ void GameClassicLetter::update()
 	}
 	else if (m_isPressed)
 	{
-		if (m_clockPressed.getElapsedTime().asMilliseconds() <= m_iTimePressed) // if pressed and not ready
+		if (m_isReady) // if pressed and ready
+		{
+			if (!m_isOverPressedClockStarted)
+			{
+				SoundManager::getInstance().playSound("ReleaseTrue");
+				m_clockOverPressed.restart();
+				m_isOverPressedClockStarted = true;
+			}
+			float i = m_clockOverPressed.getElapsedTime().asMilliseconds();
+			float l = i / m_iTimeOverPressed;
+			m_iPercentDrained = 100 * l;
+			m_iPercentFilled = 100 - m_iPercentDrained;
+			if (m_iPercentDrained >= 75)
+			{
+				if (!m_isAlertSet)
+				{
+					m_clockAlert.restart();
+					m_isAlertSet = true;
+					m_bNeedAlert = true;
+				}
+				if (m_clockAlert.getElapsedTime().asSeconds() >= 1 / 60)
+				{
+					m_fAlertRotation -= m_fAlertRotationSpeed;
+					m_clockAlert.restart();
+				}
+			}
+		}
+		else if (m_clockPressed.getElapsedTime().asMilliseconds() <= m_iTimePressed) // if pressed and not ready
 		{
 			float i = m_clockPressed.getElapsedTime().asMilliseconds(); // get current time
 			float l = i / m_iTimePressed; // divide by max time limit
 			m_iPercentFilled = 100 * l; // calculate percentage by multiplying by 100
-			if (m_iPercentFilled >= 100)
+			if (m_iPercentFilled + 1 >= 100) // +1 is a buffer to fix the bug that sometimes it will fill up and not start going down
 			{
 				m_isReady = true;
 				m_iPercentFilled = 100;
@@ -237,19 +340,6 @@ void GameClassicLetter::update()
 				float l = k * 255;
 				m_colorFill = sf::Color(255 - l, 255, 0, 255);
 			}
-		}
-		if (m_isReady) // if pressed and ready
-		{
-			if (!m_isOverPressedClockStarted)
-			{
-				m_fxReleaseTrue.play();
-				m_clockOverPressed.restart();
-				m_isOverPressedClockStarted = true;
-			}
-			float i = m_clockOverPressed.getElapsedTime().asMilliseconds();
-			float l = i / m_iTimeOverPressed;
-			m_iPercentDrained = 100 * l;
-			m_iPercentFilled = 100 - m_iPercentDrained;
 		}
 	}
 	
@@ -274,9 +364,19 @@ void GameClassicLetter::draw(sf::RenderTarget& target, sf::RenderStates states) 
 	float bob = (m_texFillOutline.getSize().y / 100.f);
 	float outlineHeight = bob * m_iPercentIdle;
 	outline.setTextureRect(sf::IntRect(0, 0, m_texFillOutline.getSize().x, outlineHeight));
-	outline.rotate(180);
+	outline.setRotation(0); // rotate by 180 to make idle animation drop down from above
 	outline.setScale(m_fAnimationScale, m_fAnimationScale);
 	target.draw(outline);
+
+	if (m_bNeedAlert)
+	{
+		sf::Sprite alert;
+		alert.setTexture(m_texAlert);
+		alert.setOrigin(m_texAlert.getSize().x / 2, m_texAlert.getSize().y / 2);
+		alert.setPosition(m_vPosition);
+		alert.setRotation(m_fAlertRotation);
+		target.draw(alert);
+	}
 
 	if (m_isReady)
 	{
@@ -284,6 +384,7 @@ void GameClassicLetter::draw(sf::RenderTarget& target, sf::RenderStates states) 
 		doneOutline.setTexture(m_texOuterline);
 		doneOutline.setOrigin(m_texOuterline.getSize().x / 2, m_texOuterline.getSize().y / 2);
 		doneOutline.setPosition(m_vPosition);
+		doneOutline.setColor(sf::Color(0, 255, 0));
 		target.draw(doneOutline);
 	}
 
